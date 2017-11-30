@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux';
 import YouTube from 'react-native-youtube';
-import { View, Text, FlatList, ActivityIndicator } from "react-native";
+import { View, Text, FlatList, ActivityIndicator, TouchableHighlight  } from "react-native";
 import { List, ListItem, SearchBar, Avatar } from "react-native-elements";
 
 class Youtube extends React.Component{
@@ -98,60 +98,51 @@ class Youtube extends React.Component{
       </View>
     );
   };
+
+  openVideo = (playlistId) => {
+    console.log("do play id : "+playlistId);
+    return <Text> Doesn't get printed {playlistId} </Text>
+  
+  }
     render(){
         var playlistId = "PL5Ki3HnGmjJy14NR-03BUXgwsofK-sCsz";        
         return(
+          <View>
             <List containerStyle={{ borderTopWidth: 0, borderBottomWidth: 0 }}>
-        <FlatList
-          data={this.state.data}
-          renderItem={({ item }) => (
-            <ListItem
-              roundAvatar = {false}
-              titleNumberOfLines = {3}
-              
-              title={`${item.name.first} Tiên kiếm kỳ hiệp P3`}
-              subtitle={item.email}
-              avatar={<Avatar
-                    large
-                    rounded={false}
-                    source={{uri: item.picture.large}}
-                    onPress={() => console.log("Works!")}
-                    activeOpacity={0.1}
-                    />}
-              containerStyle={{ borderBottomWidth: 0 }}              
-            />
-          )}
-          
-          keyExtractor={item => item.email}
-          ItemSeparatorComponent={this.renderSeparator}
-          ListHeaderComponent={this.renderHeader}
-          ListFooterComponent={this.renderFooter}
-          onRefresh={this.handleRefresh}
-          refreshing={this.state.refreshing}
-          onEndReached={this.handleLoadMore}
-          onEndReachedThreshold={50}
-        />
-      </List>
-            // <View>
-            //     <Text>
-
-            //         {this.props.mang}
-
-            //     </Text>
-            //     <YouTube
-            //     playlistId = {playlistId}
-            //     play={true}
-            //     hidden={false}
-            //     fullscreen={true}
-            //     apiKey="AIzaSyD_Z9SCsFVjAqWd7RBNamrf5-hda48Xot0"
-            //     onReady={(e)=>{this.setState({isReady: true})}}
-            //     onChangeState={(e)=>{this.setState({status: e.state})}}
-            //     onChangeQuality={(e)=>{this.setState({quality: e.quality})}}
-            //     onError={(e)=>{this.setState({error: e.error})}}
+              <FlatList
+                data={this.state.data}
+                renderItem={({ item, i }) => (
+                  <ListItem
+                    component={TouchableHighlight}
+                    roundAvatar = {false}
+                    titleNumberOfLines = {3}
+                    title={`${item.name.first} Tiên kiếm kỳ hiệp P3`}
+                    subtitle={item.email}
+                    avatar={<Avatar
+                          large
+                          rounded={false}                    
+                          source={{uri: item.picture.large}}
+                          onPress={() => console.log("Works!")}
+                          activeOpacity={0.1}
+                          />}
+                    onPress={() => this.openVideo(playlistId)}      
+                    containerStyle={{ borderBottomWidth: 0 }}              
+                  />
+                )}
                 
-            //     style={{alignSelf: 'stretch', height: 250, backgroundColor: 'black', marginVertical: 10}}
-            //     />
-            // </View>
+                keyExtractor={item => item.email}
+                ItemSeparatorComponent={this.renderSeparator}
+                ListHeaderComponent={this.renderHeader}
+                ListFooterComponent={this.renderFooter}
+                onRefresh={this.handleRefresh}
+                refreshing={this.state.refreshing}
+                onEndReached={this.handleLoadMore}
+                onEndReachedThreshold={50}
+              />
+            </List>
+            
+            
+            </View>
         )
     }
 }
