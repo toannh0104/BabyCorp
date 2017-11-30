@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import {connect} from 'react-redux';
 import YouTube from 'react-native-youtube';
 import { View, Text, FlatList, ActivityIndicator } from "react-native";
-import { List, ListItem, SearchBar } from "react-native-elements";
+import { List, ListItem, SearchBar, Avatar } from "react-native-elements";
 
 class Youtube extends React.Component{
 
@@ -106,13 +106,22 @@ class Youtube extends React.Component{
           data={this.state.data}
           renderItem={({ item }) => (
             <ListItem
-              roundAvatar
-              title={`${item.name.first} ${item.name.last}`}
+              roundAvatar = {false}
+              titleNumberOfLines = {3}
+              
+              title={`${item.name.first} Tiên kiếm kỳ hiệp P3`}
               subtitle={item.email}
-              avatar={{ uri: item.picture.thumbnail }}
-              containerStyle={{ borderBottomWidth: 0 }}
+              avatar={<Avatar
+                    large
+                    rounded={false}
+                    source={{uri: item.picture.large}}
+                    onPress={() => console.log("Works!")}
+                    activeOpacity={0.1}
+                    />}
+              containerStyle={{ borderBottomWidth: 0 }}              
             />
           )}
+          
           keyExtractor={item => item.email}
           ItemSeparatorComponent={this.renderSeparator}
           ListHeaderComponent={this.renderHeader}
