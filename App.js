@@ -28,18 +28,7 @@ class App extends Component{
   
     return (
       <Provider store={store}>
-        <View style={styles.container}>
-          <Text style={styles.welcome}>
-            Welcome to React Native! 123456b
-          </Text>
-          <Text style={styles.instructions}>
-            To get started, edit App.js
-          </Text>
-          <Text style={styles.instructions}>
-            {instructions}
-          </Text>
           <Youtube />
-        </View>
       </Provider>      
     );
   }
