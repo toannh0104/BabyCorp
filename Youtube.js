@@ -1,152 +1,196 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux';
-import YouTube from 'react-native-youtube';
-import { View, Text, FlatList, ActivityIndicator, TouchableHighlight  } from "react-native";
-import { List, ListItem, SearchBar, Avatar } from "react-native-elements";
+import PropTypes from 'prop-types';
+import ReactNative, { View, ViewPropTypes, Text, StyleSheet, requireNativeComponent, UIManager, NativeModules, BackAndroid, BackHandler as BackHandlerModule} from 'react-native';
 
-class Youtube extends React.Component{
+const BackHandler = BackHandlerModule || BackAndroid;
 
-    constructor(props) {
+const RCTYouTube = requireNativeComponent('ReactYouTube', YouTube, {
+  nativeOnly: {
+    onYouTubeError: true,
+    onYouTubeErrorReady: true,
+    onYouTubeErrorChangeState: true,
+    onYouTubeErrorChangeQuality: true,
+    onYouTubeChangeFullscreen: true,
+  },
+});
+
+class YouTube extends React.Component {
+  static propTypes = {
+    apiKey: PropTypes.string.isRequired,
+    videoId: PropTypes.string,
+    videoIds: PropTypes.arrayOf(PropTypes.string),
+    playlistId: PropTypes.string,
+    play: PropTypes.bool,
+    loop: PropTypes.bool,
+    fullscreen: PropTypes.bool,
+    controls: PropTypes.oneOf([0, 1, 2]),
+    showFullscreenButton: PropTypes.bool,
+    resumePlayAndroid: PropTypes.bool,
+    onError: PropTypes.func,
+    onReady: PropTypes.func,
+    onChangeState: PropTypes.func,
+    onChangeQuality: PropTypes.func,
+    onChangeFullscreen: PropTypes.func,
+    style: (ViewPropTypes && ViewPropTypes.style) || View.propTypes.style,
+  };
+
+  static defaultProps = {
+    showFullscreenButton: true,
+    resumePlayAndroid: true,
+  };
+
+  constructor(props) {
     super(props);
 
     this.state = {
-      loading: false,
-      data: [],
-      page: 1,
-      seed: 1,
-      error: null,
-      refreshing: false
+      moduleMargin: StyleSheet.hairlineWidth * 2,
+      fullscreen: props.fullscreen,
     };
   }
- componentDidMount() {
-    this.makeRemoteRequest();
+
+  componentWillMount() {
+    BackHandler.addEventListener('hardwareBackPress', this._backPress);
   }
 
-  makeRemoteRequest = () => {
-    const { page, seed } = this.state;
-    const url = `https://randomuser.me/api/?seed=${seed}&page=${page}&results=20`;
-    this.setState({ loading: true });
+  componentWillReceiveProps(nextProps) {
+    // Translate next `fullscreen` prop to state
+    if (nextProps.fullscreen !== this.props.fullscreen) {
+      this.setState({ fullscreen: nextProps.fullscreen });
+    }
+  }
 
-    fetch(url)
-      .then(res => res.json())
-      .then(res => {
-        this.setState({
-          data: page === 1 ? res.results : [...this.state.data, ...res.results],
-          error: res.error || null,
-          loading: false,
-          refreshing: false
-        });
-      })
-      .catch(error => {
-        this.setState({ error, loading: false });
-      });
+  componentWillUnmount() {
+    BackHandler.removeEventListener('hardwareBackPress', this._backPress);
+  }
+
+  _backPress = () => {
+    if (this.state.fullscreen) {
+      this.setState({ fullscreen: false });
+      return true;
+    }
+    return false;
   };
 
-  handleRefresh = () => {
-    this.setState(
-      {
-        page: 1,
-        seed: this.state.seed + 1,
-        refreshing: true
-      },
-      () => {
-        this.makeRemoteRequest();
-      }
+  _onError = event => {
+    if (this.props.onError) this.props.onError(event.nativeEvent);
+  };
+
+  _onReady = event => {
+    // The Android YouTube native module is pretty problematic when it comes to
+    // mounting correctly and rendering inside React-Native's views hierarchy.
+    // For now we must trigger some layout change to force a real render on it,
+    // right after the onReady event, so it will smoothly appear after ready.
+    // We also use the minimal margin to avoid `UNAUTHORIZED_OVERLAY` error from
+    // the native module that is very sensitive to being covered or even touching
+    // its containing view.
+    this.setState({ moduleMargin: StyleSheet.hairlineWidth });
+    if (this.props.onReady) this.props.onReady(event.nativeEvent);
+  };
+
+  _onChangeState = event => {
+    if (this.props.onChangeState) this.props.onChangeState(event.nativeEvent);
+  };
+
+  _onChangeQuality = event => {
+    if (this.props.onChangeQuality) this.props.onChangeQuality(event.nativeEvent);
+  };
+
+  _onChangeFullscreen = event => {
+    const { isFullscreen } = event.nativeEvent;
+    if (this.state.fullscreen !== isFullscreen) this.setState({ fullscreen: isFullscreen });
+    if (this.props.onChangeFullscreen) this.props.onChangeFullscreen(event.nativeEvent);
+  };
+
+  seekTo(seconds) {
+    UIManager.dispatchViewManagerCommand(
+      ReactNative.findNodeHandle(this._nativeComponentRef),
+      UIManager.ReactYouTube.Commands.seekTo,
+      [parseInt(seconds, 10)],
     );
-  };
+  }
 
-  handleLoadMore = () => {
-    this.setState(
-      {
-        page: this.state.page + 1
-      },
-      () => {
-        this.makeRemoteRequest();
-      }
+  nextVideo() {
+    UIManager.dispatchViewManagerCommand(
+      ReactNative.findNodeHandle(this._nativeComponentRef),
+      UIManager.ReactYouTube.Commands.nextVideo,
+      [],
     );
-  };
+  }
 
-  renderSeparator = () => {
+  previousVideo() {
+    UIManager.dispatchViewManagerCommand(
+      ReactNative.findNodeHandle(this._nativeComponentRef),
+      UIManager.ReactYouTube.Commands.previousVideo,
+      [],
+    );
+  }
+
+  playVideoAt(index) {
+    UIManager.dispatchViewManagerCommand(
+      ReactNative.findNodeHandle(this._nativeComponentRef),
+      UIManager.ReactYouTube.Commands.playVideoAt,
+      [parseInt(index, 10)],
+    );
+  }
+
+  videosIndex() {
+    return new Promise((resolve, reject) =>
+      NativeModules.YouTubeModule
+        .videosIndex(ReactNative.findNodeHandle(this._nativeComponentRef))
+        .then(index => resolve(index))
+        .catch(errorMessage => reject(errorMessage)),
+    );
+  }
+
+  currentTime() {
+    return new Promise((resolve, reject) =>
+      NativeModules.YouTubeModule
+        .currentTime(ReactNative.findNodeHandle(this._nativeComponentRef))
+        .then(currentTime => resolve(currentTime))
+        .catch(errorMessage => reject(errorMessage)),
+    );
+  }
+
+  duration() {
+    return new Promise((resolve, reject) =>
+      NativeModules.YouTubeModule
+        .duration(ReactNative.findNodeHandle(this._nativeComponentRef))
+        .then(duration => resolve(duration))
+        .catch(errorMessage => reject(errorMessage)),
+    );
+  }
+
+  render() {
     return (
-      <View
-        style={{
-          height: 1,
-          width: "86%",
-          backgroundColor: "#CED0CE",
-          marginLeft: "14%"
-        }}
-      />
-    );
-  };
-
-  renderHeader = () => {
-    return <SearchBar placeholder="Type Here..." lightTheme round />;
-  };
-
-  renderFooter = () => {
-    if (!this.state.loading) return null;
-
-    return (
-      <View
-        style={{
-          paddingVertical: 20,
-          borderTopWidth: 1,
-          borderColor: "#CED0CE"
-        }}
-      >
-        <ActivityIndicator animating size="large" />
+      <View style={[styles.container, this.props.style]}>
+        <RCTYouTube
+          ref={component => {
+            this._nativeComponentRef = component;
+          }}
+          {...this.props}
+          fullscreen={this.state.fullscreen}
+          style={[styles.module, { margin: this.state.moduleMargin }]}
+          onYouTubeError={this._onError}
+          onYouTubeReady={this._onReady}
+          onYouTubeChangeState={this._onChangeState}
+          onYouTubeChangeQuality={this._onChangeQuality}
+          onYouTubeChangeFullscreen={this._onChangeFullscreen}
+        />
       </View>
     );
-  };
-
-  openVideo = (playlistId) => {
-    console.log("do play id : "+playlistId);
-    return <Text> Doesn't get printed {playlistId} </Text>
-  
   }
-    render(){
-        var playlistId = "PL5Ki3HnGmjJy14NR-03BUXgwsofK-sCsz";        
-        return(
-          <View>
-            <List containerStyle={{ borderTopWidth: 0, borderBottomWidth: 0 }}>
-              <FlatList
-                data={this.state.data}
-                renderItem={({ item, i }) => (
-                  <ListItem
-                    component={TouchableHighlight}
-                    roundAvatar = {false}
-                    titleNumberOfLines = {3}
-                    title={`${item.name.first} Tiên kiếm kỳ hiệp P3`}
-                    subtitle={item.email}
-                    avatar={<Avatar
-                          large
-                          rounded={false}                    
-                          source={{uri: item.picture.large}}
-                          onPress={() => console.log("Works!")}
-                          activeOpacity={0.1}
-                          />}
-                    onPress={() => this.openVideo(playlistId)}      
-                    containerStyle={{ borderBottomWidth: 0 }}              
-                  />
-                )}
-                
-                keyExtractor={item => item.email}
-                ItemSeparatorComponent={this.renderSeparator}
-                ListHeaderComponent={this.renderHeader}
-                ListFooterComponent={this.renderFooter}
-                onRefresh={this.handleRefresh}
-                refreshing={this.state.refreshing}
-                onEndReached={this.handleLoadMore}
-                onEndReachedThreshold={50}
-              />
-            </List>
-            
-            
-            </View>
-        )
-    }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: 'black',
+  },
+  module: {
+    flex: 1,
+  },
+});
 
 module.exports = connect(function(state){
     return {mang: state.mang}
-})(Youtube);
+})(YouTube);

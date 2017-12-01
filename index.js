@@ -1,4 +1,4 @@
 import { AppRegistry } from 'react-native';
-import App from './App';
+import Home from './Home';
 
-AppRegistry.registerComponent('BabyCorpV2', () => App);
+AppRegistry.registerComponent('BabyCorpV2', () => Home);
