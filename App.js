@@ -1,18 +1,27 @@
-import React, { Component } from 'react';
-import store from './store.js';
-import {Provider} from 'react-redux';
-import YouTube from './Youtube';
-import ListVideo from './ListVideo';
-import { StackNavigator } from "react-navigation";
+/**
+ * @flow
+ */
 
-class App extends Component{
+import React from 'react';
+import { AppRegistry } from 'react-native';
+import { Provider } from 'react-redux';
+import { createStore } from 'redux';
 
-  render() {    
+import AppReducer from './src/reducers';
+import AppWithNavigationState from './src/navigators/AppNavigator';
+
+class ReduxExampleApp extends React.Component {
+  store = createStore(AppReducer);
+
+  render() {
     return (
-      <Provider store={store}>
-        <ListVideo navigation={this.props.navigation} />
-      </Provider>      
+      <Provider store={this.store}>
+        <AppWithNavigationState />
+      </Provider>
     );
   }
 }
-module.exports = App;
+
+AppRegistry.registerComponent('ReduxExample', () => ReduxExampleApp);
+
+export default ReduxExampleApp;

@@ -1,4 +1,20 @@
+import React from 'react';
 import { AppRegistry } from 'react-native';
-import Home from './Home';
+import { Provider } from 'react-redux';
+import { createStore } from 'redux';
 
-AppRegistry.registerComponent('BabyCorpV2', () => Home);
+import AppReducer from './src/reducers';
+import AppWithNavigationState from './src/navigators/AppNavigator';
+
+class ReduxExampleApp extends React.Component {
+  store = createStore(AppReducer);
+
+  render() {
+    return (
+      <Provider store={this.store}>
+        <AppWithNavigationState />
+      </Provider>
+    );
+  }
+}
+AppRegistry.registerComponent('BabyCorpV2', () => ReduxExampleApp);

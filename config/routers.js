@@ -1,7 +1,7 @@
 import React from 'react';
 import App from "../App";
 //import YouTube from "../Youtube";
-import SecondScreen from "./src/SecondScreen";
+import SecondScreen from "../src/SecondScreen";
 
 const reactNavigationSample = props => {
   return <App navigation={props.navigation} />;
