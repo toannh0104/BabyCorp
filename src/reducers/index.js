@@ -8,13 +8,19 @@ const firstAction = AppNavigator.router.getActionForPathAndParams('Main');
 const tempNavState = AppNavigator.router.getStateForAction(firstAction);
 const secondAction = AppNavigator.router.getActionForPathAndParams('Login');
 const initialNavState = AppNavigator.router.getStateForAction(
-  secondAction,
+  firstAction,
   tempNavState
 );
 
 function nav(state = initialNavState, action) {
   let nextState;
   switch (action.type) {
+    case 'Detail':
+    nextState = AppNavigator.router.getStateForAction(
+      NavigationActions.navigate({ routeName: 'Detail' }),
+      state
+    );
+    break;
     case 'Login':
       nextState = AppNavigator.router.getStateForAction(
         NavigationActions.back(),

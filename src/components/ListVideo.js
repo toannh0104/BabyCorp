@@ -3,6 +3,8 @@ import {connect} from 'react-redux';
 import YouTube from 'react-native-youtube';
 import {View, Text, FlatList, ActivityIndicator, TouchableHighlight} from "react-native";
 import {List, ListItem, SearchBar, Avatar} from "react-native-elements";
+import { NavigationActions } from 'react-navigation';
+
 
 class ListVideo extends React.Component{
 
@@ -24,14 +26,15 @@ class ListVideo extends React.Component{
 
   makeRemoteRequest = () => {
     const { page, seed } = this.state;
-    const url = `https://randomuser.me/api/?seed=${seed}&page=${page}&results=20`;
+    const url = `https://demo9821357.mockable.io`;
     this.setState({ loading: true });
 
     fetch(url)
       .then(res => res.json())
       .then(res => {
         this.setState({
-          data: page === 1 ? res.results : [...this.state.data, ...res.results],
+          //data: page === 1 ? res.results : [...this.state.data, ...res.results],
+          data: res.results,
           error: res.error || null,
           loading: false,
           refreshing: false
@@ -79,8 +82,21 @@ class ListVideo extends React.Component{
     );
   };
 
+  filterVideo = () => {
+    var x = 1;
+    var y = 2;
+    var x = 43;
+    if(x == y){
+      z = 3;
+      console.log(z);
+    }
+    var keyword = this.refs.keyword;
+
+    console.log("filter");
+    //this.state.data.filter(d => d.indexOf(keyword) !== -1 );
+  }
   renderHeader = () => {
-    return <SearchBar placeholder="Type Here..." lightTheme round />;
+    return <SearchBar placeholder="Search..." ref={search => this.search = search} lightTheme onChangeText={this.filterVideo()} />;
   };
 
   renderFooter = () => {
@@ -99,15 +115,14 @@ class ListVideo extends React.Component{
     );
   };
 
-  openVideo = (playlistId) => {
-    const { navigate } = this.props.navigation;
-    console.log("do play id : "+playlistId);
-    navigate("SecondScreen");
-  
+  openVideo = (videoIds) => {
+    console.log("do play id : "+videoIds);
+    this.props.detailScreen(videoIds);
   }
     render(){
       
-      var playlistId="PL5Ki3HnGmjJy14NR-03BUXgwsofK-sCsz";
+      //var videoIds=["n9CJjlDkbQg", "g2Uftu_8z3M"];
+      var vid = "iTqRNR2MQ1Y";
         return(
             <List containerStyle={{ borderTopWidth: 0, borderBottomWidth: 0 }}>
               <FlatList
@@ -117,23 +132,23 @@ class ListVideo extends React.Component{
                     component={TouchableHighlight}
                     roundAvatar = {false}
                     titleNumberOfLines = {3}
-                    title={`${item.name.first} Tiên kiếm kỳ hiệp P3`}
-                    subtitle={item.email}
+                    title={`${item.title}`}
+                    subtitle={`${item.title}`}
                     avatar={<Avatar
                           large
                           rounded={false}                    
-                          source={{uri: item.picture.large}}
-                          onPress={() => this.openVideo(playlistId)}
+                          source={{uri: item.avatar}}
+                          onPress={() => this.openVideo(item.youtubeId)}
                           activeOpacity={0.1}
                           />}
-                    onPress={() => this.openVideo(playlistId)}
+                    onPress={() => this.openVideo(item.youtubeId)}
                     containerStyle={{ borderBottomWidth: 0 }}              
                   />
                 )}
                 
-                keyExtractor={item => item.email}
+                keyExtractor={item => item.title}
                 ItemSeparatorComponent={this.renderSeparator}
-                ListHeaderComponent={this.renderHeader}
+                ListHeaderComponent={<SearchBar placeholder="Search..." ref={search => this.search = search} lightTheme onChangeText={this.filterVideo()} />}
                 ListFooterComponent={this.renderFooter}
                 onRefresh={this.handleRefresh}
                 refreshing={this.state.refreshing}
@@ -145,6 +160,17 @@ class ListVideo extends React.Component{
     }
 }
 
-module.exports = connect(function(state){
-    return {mang: state.mang}
-})(ListVideo);
+const mapStateToProps = state => ({
+  videoId: state.videoId
+});
+
+const mapDispatchToProps = dispatch => ({
+  detailScreen: (vid) =>
+  {
+    console.log("vid"+vid)
+    dispatch(NavigationActions.navigate({ routeName: 'Detail', params: { vid: vid} }))
+  }
+    
+});
+
+module.exports = connect(mapStateToProps, mapDispatchToProps)(ListVideo);

@@ -1,8 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import LoginStatusMessage from './LoginStatusMessage';
-import AuthButton from './AuthButton';
 import ListVideo from './ListVideo';
 const styles = StyleSheet.create({
   container: {
@@ -18,7 +16,7 @@ const MainScreen = () => (
 );
 
 MainScreen.navigationOptions = {
-  title: 'Home Screen',
+  title: 'List Video',
 };
 
 export default MainScreen;
