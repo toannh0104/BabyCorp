@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux';
 import YouTube from 'react-native-youtube';
-import {View, Text, FlatList, ActivityIndicator, TouchableHighlight} from "react-native";
-import {List, ListItem, SearchBar, Avatar} from "react-native-elements";
-import { NavigationActions } from 'react-navigation';
+import { TouchableHightlight, Text, View, FlatList, ActivityIndicator } from 'react-native';
 
+import {List, ListItem, Avatar} from "react-native-elements";
+import { NavigationActions } from 'react-navigation';
+import SearchBar from 'react-native-material-design-searchbar'
 
 class ListVideo extends React.Component{
 
@@ -14,6 +15,7 @@ class ListVideo extends React.Component{
     this.state = {
       loading: false,
       data: [],
+      dataFilter: [],
       page: 1,
       seed: 1,
       error: null,
@@ -35,6 +37,7 @@ class ListVideo extends React.Component{
         this.setState({
           //data: page === 1 ? res.results : [...this.state.data, ...res.results],
           data: res.results,
+          dataFilter: res.results,
           error: res.error || null,
           loading: false,
           refreshing: false
@@ -82,21 +85,14 @@ class ListVideo extends React.Component{
     );
   };
 
-  filterVideo = () => {
-    var x = 1;
-    var y = 2;
-    var x = 43;
-    if(x == y){
-      z = 3;
-      console.log(z);
-    }
-    var keyword = this.refs.keyword;
-
-    console.log("filter");
-    //this.state.data.filter(d => d.indexOf(keyword) !== -1 );
+  filterVideo = (input) => {
+    var dFilter = this.state.data;
+    this.state.dataFilter = dFilter.filter(d => d.title.toUpperCase().indexOf(input.toUpperCase()) !== -1)
+    this.setState(this.state);
+    console.log(this.state.data);
   }
   renderHeader = () => {
-    return <SearchBar placeholder="Search..." ref={search => this.search = search} lightTheme onChangeText={this.filterVideo()} />;
+    return <div>Hello</div>
   };
 
   renderFooter = () => {
@@ -126,10 +122,10 @@ class ListVideo extends React.Component{
         return(
             <List containerStyle={{ borderTopWidth: 0, borderBottomWidth: 0 }}>
               <FlatList
-                data={this.state.data}
+                data={this.state.dataFilter}
                 renderItem={({ item, i }) => (
                   <ListItem
-                    component={TouchableHighlight}
+                    component={TouchableHightlight}
                     roundAvatar = {false}
                     titleNumberOfLines = {3}
                     title={`${item.title}`}
@@ -146,9 +142,24 @@ class ListVideo extends React.Component{
                   />
                 )}
                 
-                keyExtractor={item => item.title}
+                keyExtractor={item => item.id}
                 ItemSeparatorComponent={this.renderSeparator}
-                ListHeaderComponent={<SearchBar placeholder="Search..." ref={search => this.search = search} lightTheme onChangeText={this.filterVideo()} />}
+                ListHeaderComponent={
+                  <SearchBar
+                  onSearchChange={(input) => this.filterVideo(input)}
+                  height={50}
+                  onFocus={() => console.log('On Focus')}
+                  onBlur={() => console.log('On Blur')}
+                  placeholder={'Search...'}
+                  autoCorrect={false}
+                  padding={5}
+                  returnKeyType={'search'}
+                  ref="search_box"
+                />
+
+//                <Search placeholder="Search..." ref="search_box" lightTheme onChangeText={this.filterVideo()} />
+              
+              }
                 ListFooterComponent={this.renderFooter}
                 onRefresh={this.handleRefresh}
                 refreshing={this.state.refreshing}

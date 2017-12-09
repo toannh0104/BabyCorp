@@ -9,7 +9,7 @@ const tempNavState = AppNavigator.router.getStateForAction(firstAction);
 const secondAction = AppNavigator.router.getActionForPathAndParams('Login');
 const initialNavState = AppNavigator.router.getStateForAction(
   firstAction,
-  tempNavState
+  //tempNavState
 );
 
 function nav(state = initialNavState, action) {

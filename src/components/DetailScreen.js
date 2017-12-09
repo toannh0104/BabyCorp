@@ -25,9 +25,9 @@ class DetailScreen extends React.Component {
   }
 
   gotoListVideo(isFullscreen){
-      console.log("move to main screen: "+isFullscreen)
+      //console.log("move to main screen: "+isFullscreen)
       if(!isFullscreen){
-        console.log(this.state.fullscreen)
+        //console.log(this.state.fullscreen)
         this.props.listVideo();
       }
       
@@ -35,7 +35,7 @@ class DetailScreen extends React.Component {
 
   render() {
     var {state} = this.props.navigation;
-    console.log("xx");
+    //console.log("xx");
     return (
       <ScrollView
         style={styles.container}
@@ -218,7 +218,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
     listVideo: () =>
-     dispatch(NavigationActions.navigate({ routeName: 'Main' })),
+     dispatch(NavigationActions.back({ key: 'Main' })),
 });
   
 module.exports = connect(mapStateToProps, mapDispatchToProps)(DetailScreen);

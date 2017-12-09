@@ -9,9 +9,9 @@ import ProfileScreen from '../components/ProfileScreen';
 import DetailScreen from '../components/DetailScreen';
 
 export const AppNavigator = StackNavigator({
-  Login: { screen: LoginScreen },
+ // Login: { screen: LoginScreen },
   Main: { screen: MainScreen },
-  Profile: { screen: ProfileScreen },
+  //Profile: { screen: ProfileScreen },
   Detail: {screen: DetailScreen}
 });
 

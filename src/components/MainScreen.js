@@ -16,7 +16,7 @@ const MainScreen = () => (
 );
 
 MainScreen.navigationOptions = {
-  title: 'List Video',
+  title: 'List video',
 };
 
 export default MainScreen;
