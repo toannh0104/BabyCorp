@@ -23,7 +23,9 @@ class DetailScreen extends React.Component {
       super(props);
       
   }
-
+  static navigationOptions = ({ navigation }) => ({
+    title: `${navigation.state.params.title}`,
+  });
   gotoListVideo(isFullscreen){
       //console.log("move to main screen: "+isFullscreen)
       if(!isFullscreen){
@@ -205,11 +207,6 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
 });
-
-DetailScreen.navigationOptions = {
-    title: 'Detail Video',
-};
-  
 
 const mapStateToProps = state => ({
     //videoIds: state.params.videoIds,

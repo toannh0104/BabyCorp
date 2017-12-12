@@ -111,9 +111,9 @@ class ListVideo extends React.Component{
     );
   };
 
-  openVideo = (videoIds) => {
+  openVideo = (title, videoIds) => {
     console.log("do play id : "+videoIds);
-    this.props.detailScreen(videoIds);
+    this.props.detailScreen(title, videoIds);
   }
     render(){
       
@@ -134,10 +134,10 @@ class ListVideo extends React.Component{
                           large
                           rounded={false}                    
                           source={{uri: item.avatar}}
-                          onPress={() => this.openVideo(item.youtubeId)}
+                          onPress={() => this.openVideo(item.title, item.youtubeId)}
                           activeOpacity={0.1}
                           />}
-                    onPress={() => this.openVideo(item.youtubeId)}
+                    onPress={() => this.openVideo(item.title, item.youtubeId)}
                     containerStyle={{ borderBottomWidth: 0 }}              
                   />
                 )}
@@ -176,10 +176,10 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  detailScreen: (vid) =>
+  detailScreen: (title, vid) =>
   {
     console.log("vid"+vid)
-    dispatch(NavigationActions.navigate({ routeName: 'Detail', params: { vid: vid} }))
+    dispatch(NavigationActions.navigate({ routeName: 'Detail', params: {title: title, vid: vid} }))
   }
     
 });

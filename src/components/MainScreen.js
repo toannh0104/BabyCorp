@@ -16,7 +16,11 @@ const MainScreen = () => (
 );
 
 MainScreen.navigationOptions = {
-  title: 'List video',
+  StyleSheet:{
+    backgroundColor: '#FF0033',
+    color: 'red'
+  },
+  title: 'Gà con 22/07/2017 memories',
 };
 
 export default MainScreen;
